@@ -98,10 +98,10 @@ void calculate_Gtune(bool inirun, uint8_t ax, pidProfile_t *pidProfile)
     {
         for (i = 0; i < 3; i++)
         {
-            if ((pidProfile->gtune_hilimP[i] && pidProfile->gtune_lolimP[i] > pidProfile->gtune_hilimP[i]) ||    // User config error disable axis for tuning
-               (motorCount < 4 && i == FD_YAW)) pidProfile->gtune_hilimP[i] = 0;        // Disable Yawtuning for everything below a quadcopter
+            if ((pidProfile->gtune_hilimP[i] && pidProfile->gtune_lolimP[i] > pidProfile->gtune_hilimP[i]) || // User config error disable axis for tuning
+               (motorCount < 4 && i == FD_YAW)) pidProfile->gtune_hilimP[i] = 0; // Disable Yawtuning for everything below a quadcopter
             if(pidProfile->P8[i] < pidProfile->gtune_lolimP[i]) pidProfile->P8[i] = pidProfile->gtune_lolimP[i];
-            result_P64[i] = (int16_t)pidProfile->P8[i] << 6;                            // 6 bit extra resolution for P.
+            result_P64[i] = (int16_t)pidProfile->P8[i] << 6;                    // 6 bit extra resolution for P.
             OldError[i]   = 0;
             time_skip[i]  = -125;
         }
@@ -144,7 +144,7 @@ void calculate_Gtune(bool inirun, uint8_t ax, pidProfile_t *pidProfile)
                     diff_G = ABS(error) - ABS(OldError[ax]);
                     if ((error > 0 && OldError[ax] > 0) || (error < 0 && OldError[ax] < 0))
                     {
-                        if (diff_G > threshP) result_P64[ax] += 64 + pidProfile->gtune_pwr;// Shift balance a little on the plus side.
+                        if (diff_G > threshP) result_P64[ax] += 64 + pidProfile->gtune_pwr; // Shift balance a little on the plus side.
                         else
                         {
                             if (diff_G < -threshP)
@@ -159,7 +159,8 @@ void calculate_Gtune(bool inirun, uint8_t ax, pidProfile_t *pidProfile)
                         if (ABS(diff_G) > threshP && ax != FD_YAW) result_P64[ax] -= 32; // Don't use antiwobble for YAW
                     }
                     result_P64[ax] = constrain(result_P64[ax], (int16_t)pidProfile->gtune_lolimP[ax] << 6, (int16_t)pidProfile->gtune_hilimP[ax] << 6);
-                    pidProfile->P8[ax] = result_P64[ax] >> 6;
+                    pidProfile->P8[ax] = result_P64[ax] >> 6;                   // new P value
+                    pidProfile->P_f[ax] = (float)(result_P64[ax] >> 6);         // new P value for LuxFloat
                 }
                 OldError[ax] = error;
             }

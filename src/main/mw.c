@@ -160,15 +160,22 @@ void updateAutotuneState(void)
 
 void updateGtuneState(void)
 {
+    static bool GTuneWasUsed = false;
+
     if (IS_RC_MODE_ACTIVE(BOXGTUNE))
     {
         if (!FLIGHT_MODE(GTUNE_MODE))
         {
         	ENABLE_FLIGHT_MODE(GTUNE_MODE);
             calculate_Gtune(true, 0, &currentProfile->pidProfile);
+            GTuneWasUsed = true;
         }
     } else {
     	DISABLE_FLIGHT_MODE(GTUNE_MODE);
+        if (!ARMING_FLAG(ARMED) && GTuneWasUsed) {
+            saveConfigAndNotify();
+        }
+        GTuneWasUsed = false;
     }
 }
 #endif

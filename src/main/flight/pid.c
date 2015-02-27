@@ -208,6 +208,12 @@ static void pidLuxFloat(pidProfile_t *pidProfile, controlRateConfig_t *controlRa
         // -----calculate total PID output
         axisPID[axis] = constrain(lrintf(PTerm + ITerm - DTerm), -1000, 1000);
 
+#ifdef GTUNE
+        if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+            calculate_Gtune(false, axis, pidProfile);
+        }
+#endif
+
 #ifdef BLACKBOX
         axisPID_P[axis] = PTerm;
         axisPID_I[axis] = ITerm;
@@ -291,6 +297,12 @@ static void pidMultiWii(pidProfile_t *pidProfile, controlRateConfig_t *controlRa
         DTerm = (deltaSum * dynD8[axis]) / 32;
         axisPID[axis] = PTerm + ITerm - DTerm;
 
+#ifdef GTUNE
+        if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+            calculate_Gtune(false, axis, pidProfile);
+        }
+#endif
+
 #ifdef BLACKBOX
         axisPID_P[axis] = PTerm;
         axisPID_I[axis] = ITerm;
@@ -372,6 +384,12 @@ static void pidMultiWii23(pidProfile_t *pidProfile, controlRateConfig_t *control
 
         axisPID[axis] = PTerm + ITerm - DTerm;
 
+#ifdef GTUNE
+        if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+            calculate_Gtune(false, axis, pidProfile);
+        }
+#endif
+
 #ifdef BLACKBOX
         axisPID_P[axis] = PTerm;
         axisPID_I[axis] = ITerm;
@@ -400,6 +418,12 @@ static void pidMultiWii23(pidProfile_t *pidProfile, controlRateConfig_t *control
     ITerm = constrain((int16_t)(errorGyroI[FD_YAW] >> 13), -GYRO_I_MAX, +GYRO_I_MAX);
 
     axisPID[FD_YAW] =  PTerm + ITerm;
+
+#ifdef GTUNE
+    if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+        calculate_Gtune(false, FD_YAW, pidProfile);
+    }
+#endif
 
 #ifdef BLACKBOX
     axisPID_P[FD_YAW] = PTerm;
@@ -483,6 +507,12 @@ static void pidMultiWiiHybrid(pidProfile_t *pidProfile, controlRateConfig_t *con
         DTerm = (deltaSum * dynD8[axis]) / 32;
         axisPID[axis] = PTerm + ITerm - DTerm;
 
+#ifdef GTUNE
+        if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+            calculate_Gtune(false, axis, pidProfile);
+        }
+#endif
+
 #ifdef BLACKBOX
         axisPID_P[axis] = PTerm;
         axisPID_I[axis] = ITerm;
@@ -511,6 +541,11 @@ static void pidMultiWiiHybrid(pidProfile_t *pidProfile, controlRateConfig_t *con
 
     axisPID[FD_YAW] =  PTerm + ITerm;
 
+#ifdef GTUNE
+    if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+        calculate_Gtune(false, FD_YAW, pidProfile);
+    }
+#endif
 
 #ifdef BLACKBOX
     axisPID_P[FD_YAW] = PTerm;
@@ -759,6 +794,12 @@ static void pidRewrite(pidProfile_t *pidProfile, controlRateConfig_t *controlRat
 
         // -----calculate total PID output
         axisPID[axis] = PTerm + ITerm + DTerm;
+
+#ifdef GTUNE
+        if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+             calculate_Gtune(false, axis, pidProfile);
+        }
+#endif
 
 #ifdef BLACKBOX
         axisPID_P[axis] = PTerm;

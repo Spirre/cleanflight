@@ -57,8 +57,8 @@ typedef struct pidProfile_s {
 
     uint16_t yaw_p_limit;                   // set P term limit (fixed value was 300)
 
-    uint8_t pid5_oldyw;
-    uint8_t pid5_maincuthz;
+    uint8_t pid5_oldyw;                     // [0/1] 0 = multiwii 2.3 yaw, 1 = older yaw
+    uint8_t pid5_maincuthz;                 // [1-50Hz] Cuf Off Frequency for D term of main Pid controller
 
 #ifdef GTUNE
     uint8_t  gtune_lolimP[3];               // [10..200] Lower limit of P during G tune
