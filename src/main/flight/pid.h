@@ -59,6 +59,12 @@ typedef struct pidProfile_s {
 
     uint8_t pid5_oldyw;
     uint8_t pid5_maincuthz;
+
+#ifdef GTUNE
+    uint8_t  gtune_lolimP[3];               // [10..200] Lower limit of P during G tune
+    uint8_t  gtune_hilimP[3];               // [0..200] Higher limit of P during G tune. 0 Disables tuning for that axis.
+    int8_t   gtune_pwr;                     // [0..10] Strength of adjustment
+#endif
 } pidProfile_t;
 
 #define DEGREES_TO_DECIDEGREES(angle) (angle * 10)

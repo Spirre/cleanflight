@@ -339,6 +339,7 @@ static const box_t const boxes[CHECKBOX_ITEM_COUNT + 1] = {
     { BOXTELEMETRY, "TELEMETRY;", 20 },
     { BOXAUTOTUNE, "AUTOTUNE;", 21 },
     { BOXSONAR, "SONAR;", 22 },
+    { BOXGTUNE, "GTUNE;", 23 },
     { CHECKBOX_ITEM_COUNT, NULL, 0xFF }
 };
 
@@ -676,6 +677,10 @@ void mspInit(serialConfig_t *serialConfig)
     if (feature(FEATURE_SONAR)){
         activeBoxIds[activeBoxIdCount++] = BOXSONAR;
     }
+
+#ifdef GTUNE
+    activeBoxIds[activeBoxIdCount++] = BOXGTUNE;
+#endif
 
     memset(mspPorts, 0x00, sizeof(mspPorts));
     mspAllocateSerialPorts(serialConfig);

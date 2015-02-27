@@ -42,6 +42,7 @@
 #include "flight/imu.h"
 #include "flight/navigation.h"
 #include "flight/autotune.h"
+#include "flight/gtune.h"
 
 #include "config/runtime_config.h"
 
@@ -592,6 +593,12 @@ rollAndPitchTrims_t *angleTrim, rxConfig_t *rxConfig)
 
         axisPID[axis] = lrintf(PTerm + ITerm - DTerm);                         // Round up result.
 
+#ifdef GTUNE
+        if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+            calculate_Gtune(false, axis, pidProfile);
+        }
+#endif
+
 #ifdef BLACKBOX
         axisPID_P[axis] = PTerm;
         axisPID_I[axis] = ITerm;
@@ -632,6 +639,12 @@ rollAndPitchTrims_t *angleTrim, rxConfig_t *rxConfig)
     }
     axisPID[FD_YAW] = PTerm + ITerm;
     axisPID[FD_YAW] = lrintf(axisPID[FD_YAW]);                                 // Round up result.
+
+#ifdef GTUNE
+    if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
+        calculate_Gtune(false, FD_YAW, pidProfile);
+    }
+#endif
 
 #ifdef BLACKBOX
     axisPID_P[FD_YAW] = PTerm;
