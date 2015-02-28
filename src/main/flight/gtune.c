@@ -59,11 +59,11 @@ extern uint8_t motorCount;
  */
 
 /*
-   version 1.0.0: MIN & MAX & Tuned Band
+   version 1.0.0: MIN & Maxis & Tuned Band
    version 1.0.1:
                 a. error is gyro reading not rc - gyro.
                 b. OldError = Error no averaging.
-                c. No Min MAX BOUNDRY
+                c. No Min Maxis BOUNDRY
     version 1.0.2:
                 a. no boundaries
                 b. I - Factor tune.
@@ -80,90 +80,82 @@ extern uint8_t motorCount;
     pidProfile->gtune_lolimP[ROLL]   = 20; [10..200] Lower limit of ROLL P during G tune.
     pidProfile->gtune_lolimP[PITCH]  = 20; [10..200] Lower limit of PITCH P during G tune.
     pidProfile->gtune_lolimP[YAW]    = 20; [10..200] Lower limit of YAW P during G tune.
-    pidProfile->gtune_hilimP[ROLL]   = 70; [0..200]  Higher limit of ROLL P during G tune. 0 Disables tuning for that axis.
-    pidProfile->gtune_hilimP[PITCH]  = 70; [0..200]  Higher limit of PITCH P during G tune. 0 Disables tuning for that axis.
-    pidProfile->gtune_hilimP[YAW]    = 70; [0..200]  Higher limit of YAW P during G tune. 0 Disables tuning for that axis.
+    pidProfile->gtune_hilimP[ROLL]   = 70; [0..200]  Higher limit of ROLL P during G tune. 0 Disables tuning for that axisis.
+    pidProfile->gtune_hilimP[PITCH]  = 70; [0..200]  Higher limit of PITCH P during G tune. 0 Disables tuning for that axisis.
+    pidProfile->gtune_hilimP[YAW]    = 70; [0..200]  Higher limit of YAW P during G tune. 0 Disables tuning for that axisis.
     pidProfile->gtune_pwr            = 0;  [0..10] Strength of adjustment
 */
 
-void calculate_Gtune(bool inirun, uint8_t ax, pidProfile_t *pidProfile)
+static pidProfile_t *pidProfile;
+static int8_t time_skip[3];
+static int16_t OldError[3], result_P64[3];
+static int32_t AvgGyro[3];
+static bool floatPID;
+
+void init_Gtune(pidProfile_t *pidProfileToTune)
 {
-    static  int8_t time_skip[3];
-    static  int16_t OldError[3], result_P64[3];
-    static  int32_t AvgGyro[3];
-    int16_t error, diff_G, threshP;
     uint8_t i;
 
-    if (inirun)
-    {
-        for (i = 0; i < 3; i++)
-        {
-            if ((pidProfile->gtune_hilimP[i] && pidProfile->gtune_lolimP[i] > pidProfile->gtune_hilimP[i]) || // User config error disable axis for tuning
-               (motorCount < 4 && i == FD_YAW)) pidProfile->gtune_hilimP[i] = 0; // Disable Yawtuning for everything below a quadcopter
+    pidProfile = pidProfileToTune;
+	if (pidProfile->pidController == 2) floatPID = true;                        // LuxFloat is using float values for PID settings
+	else floatPID = false;
+	for (i = 0; i < 3; i++) {
+        if ((pidProfile->gtune_hilimP[i] && pidProfile->gtune_lolimP[i] > pidProfile->gtune_hilimP[i]) || // User config error disable axisis for tuning
+            (motorCount < 4 && i == FD_YAW)) pidProfile->gtune_hilimP[i] = 0;   // Disable Yawtuning for everything below a quadcopter
+        if (floatPID) {
+            if(pidProfile->P_f[i] < pidProfile->gtune_lolimP[i]) pidProfile->P_f[i] = pidProfile->gtune_lolimP[i];
+            result_P64[i] = (int16_t)pidProfile->P_f[i] << 6;                   // 6 bit extra resolution for P.
+        } else {
             if(pidProfile->P8[i] < pidProfile->gtune_lolimP[i]) pidProfile->P8[i] = pidProfile->gtune_lolimP[i];
             result_P64[i] = (int16_t)pidProfile->P8[i] << 6;                    // 6 bit extra resolution for P.
-            OldError[i]   = 0;
-            time_skip[i]  = -125;
         }
+        OldError[i] = 0;
+        time_skip[i] = -125;
     }
-    else
-    {
-        if(rcCommand[ax] || (ax != FD_YAW && (FLIGHT_MODE(ANGLE_MODE) || FLIGHT_MODE(HORIZON_MODE))))    // Block Tuning on stickinput. Always allow Gtune on YAW, Roll & Pitch only in acromode
-        {
-            OldError[ax]  = 0;
-            time_skip[ax] = -125;                                               // Some settletime after stick center. (125 + 16)* 3ms clycle = 423ms (ca.)
+}
+
+void calculate_Gtune(uint8_t axis)
+{
+    int16_t error, diff_G, threshP;
+
+    if(rcCommand[axis] || (axis != FD_YAW && (FLIGHT_MODE(ANGLE_MODE) || FLIGHT_MODE(HORIZON_MODE)))) {  // Block Tuning on stickinput. Always allow Gtune on YAW, Roll & Pitch only in acromode
+        OldError[axis] = 0;
+        time_skip[axis] = -125;                                                 // Some settletime after stick center. (125 + 16)* 3ms clycle = 423ms (ca.)
+    } else {
+        if (!time_skip[axis]) AvgGyro[axis] = 0;
+        time_skip[axis]++;
+        if (time_skip[axis] > 0) {
+            if (axis == FD_YAW) AvgGyro[axis] += 32 * ((int16_t)gyroData[axis] / 32); // Chop some jitter and average
+            else AvgGyro[axis] += 128 * ((int16_t)gyroData[axis] / 128);        // Chop some jitter and average
         }
-        else
-        {
-            if (!time_skip[ax]) AvgGyro[ax] = 0;
-            time_skip[ax]++;
-            if (time_skip[ax] > 0)
-            {
-                if (ax == FD_YAW) AvgGyro[ax] += 32 * ((int16_t)gyroData[ax] / 32);// Chop some jitter and average
-                else AvgGyro[ax] += 128 * ((int16_t)gyroData[ax] / 128);        // Chop some jitter and average
+        if (time_skip[axis] == 16) {                                            // ca 48 ms
+            AvgGyro[axis] /= time_skip[axis];                                   // AvgGyro[axis] has now very clean gyrodata
+            time_skip[axis] = 0;
+            if (axis == FD_YAW) {
+                threshP = 20;
+                error = -AvgGyro[axis];
+            } else {
+                threshP = 10;
+                error = AvgGyro[axis];
             }
-
-            if (time_skip[ax] == 16)                                            // ca 48 ms
-            {
-                AvgGyro[ax] /= time_skip[ax];                                   // AvgGyro[ax] has now very clean gyrodata
-                time_skip[ax] = 0;
-
-                if (ax == FD_YAW)
-                {
-                    threshP = 20;
-                    error   = -AvgGyro[ax];
-                }
-                else
-                {
-                    threshP = 10;
-                    error   = AvgGyro[ax];
-                }
-
-                if (pidProfile->gtune_hilimP[ax] && error && OldError[ax] && error != OldError[ax]) // Don't run when not needed or pointless to do so
-                {
-                    diff_G = ABS(error) - ABS(OldError[ax]);
-                    if ((error > 0 && OldError[ax] > 0) || (error < 0 && OldError[ax] < 0))
-                    {
-                        if (diff_G > threshP) result_P64[ax] += 64 + pidProfile->gtune_pwr; // Shift balance a little on the plus side.
-                        else
-                        {
-                            if (diff_G < -threshP)
-                            {
-                                if (ax == FD_YAW) result_P64[ax] -= 64 + pidProfile->gtune_pwr;
-                                else result_P64[ax] -= 32;
-                            }
+            if (pidProfile->gtune_hilimP[axis] && error && OldError[axis] && error != OldError[axis]) {  // Don't run when not needed or pointless to do so
+                diff_G = ABS(error) - ABS(OldError[axis]);
+                if ((error > 0 && OldError[axis] > 0) || (error < 0 && OldError[axis] < 0)) {
+                    if (diff_G > threshP) result_P64[axis] += 64 + pidProfile->gtune_pwr; // Shift balance a little on the plus side.
+                    else {
+                        if (diff_G < -threshP) {
+                            if (axis == FD_YAW) result_P64[axis] -= 64 + pidProfile->gtune_pwr;
+                            else result_P64[axis] -= 32;
                         }
                     }
-                    else
-                    {
-                        if (ABS(diff_G) > threshP && ax != FD_YAW) result_P64[ax] -= 32; // Don't use antiwobble for YAW
-                    }
-                    result_P64[ax] = constrain(result_P64[ax], (int16_t)pidProfile->gtune_lolimP[ax] << 6, (int16_t)pidProfile->gtune_hilimP[ax] << 6);
-                    pidProfile->P8[ax] = result_P64[ax] >> 6;                   // new P value
-                    pidProfile->P_f[ax] = (float)(result_P64[ax] >> 6);         // new P value for LuxFloat
+                } else {
+                    if (ABS(diff_G) > threshP && axis != FD_YAW) result_P64[axis] -= 32; // Don't use antiwobble for YAW
                 }
-                OldError[ax] = error;
+                result_P64[axis] = constrain(result_P64[axis], (int16_t)pidProfile->gtune_lolimP[axis] << 6, (int16_t)pidProfile->gtune_hilimP[axis] << 6);
+                if (floatPID) pidProfile->P_f[axis] = (float)(result_P64[axis] >> 6); // new P value for float PID
+                else pidProfile->P8[axis] = result_P64[axis] >> 6;              // new P value
             }
+            OldError[axis] = error;
         }
     }
 }

@@ -801,6 +801,7 @@ static bool processOutCommand(uint8_t cmdMSP)
             IS_ENABLED(IS_RC_MODE_ACTIVE(BOXOSD)) << BOXOSD |
             IS_ENABLED(IS_RC_MODE_ACTIVE(BOXTELEMETRY)) << BOXTELEMETRY |
             IS_ENABLED(IS_RC_MODE_ACTIVE(BOXAUTOTUNE)) << BOXAUTOTUNE |
+            IS_ENABLED(IS_RC_MODE_ACTIVE(BOXGTUNE)) << BOXGTUNE |
             IS_ENABLED(FLIGHT_MODE(SONAR_MODE)) << BOXSONAR |
             IS_ENABLED(ARMING_FLAG(ARMED)) << BOXARM;
         for (i = 0; i < activeBoxIdCount; i++) {

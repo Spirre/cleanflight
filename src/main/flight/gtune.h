@@ -17,4 +17,5 @@
 
 #pragma once
 
-void calculate_Gtune(bool inirun, uint8_t ax, pidProfile_t *pidProfile);
+void init_Gtune(pidProfile_t *pidProfileToTune);
+void calculate_Gtune(uint8_t axis);

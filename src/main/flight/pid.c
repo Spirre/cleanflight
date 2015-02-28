@@ -210,7 +210,7 @@ static void pidLuxFloat(pidProfile_t *pidProfile, controlRateConfig_t *controlRa
 
 #ifdef GTUNE
         if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-            calculate_Gtune(false, axis, pidProfile);
+            calculate_Gtune(axis);
         }
 #endif
 
@@ -299,7 +299,7 @@ static void pidMultiWii(pidProfile_t *pidProfile, controlRateConfig_t *controlRa
 
 #ifdef GTUNE
         if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-            calculate_Gtune(false, axis, pidProfile);
+            calculate_Gtune(axis);
         }
 #endif
 
@@ -386,7 +386,7 @@ static void pidMultiWii23(pidProfile_t *pidProfile, controlRateConfig_t *control
 
 #ifdef GTUNE
         if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-            calculate_Gtune(false, axis, pidProfile);
+            calculate_Gtune(axis);
         }
 #endif
 
@@ -419,9 +419,14 @@ static void pidMultiWii23(pidProfile_t *pidProfile, controlRateConfig_t *control
 
     axisPID[FD_YAW] =  PTerm + ITerm;
 
+    if (motorCount >= 4) {                                                     // prevent "yaw jump" during yaw correction
+        int16_t limit = ABS(rcCommand[FD_YAW]) + 100;
+        axisPID[FD_YAW] = (float)constrain((int32_t)axisPID[FD_YAW], -limit, +limit);
+    }
+
 #ifdef GTUNE
     if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-        calculate_Gtune(false, FD_YAW, pidProfile);
+        calculate_Gtune(FD_YAW);
     }
 #endif
 
@@ -509,7 +514,7 @@ static void pidMultiWiiHybrid(pidProfile_t *pidProfile, controlRateConfig_t *con
 
 #ifdef GTUNE
         if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-            calculate_Gtune(false, axis, pidProfile);
+            calculate_Gtune(axis);
         }
 #endif
 
@@ -541,9 +546,14 @@ static void pidMultiWiiHybrid(pidProfile_t *pidProfile, controlRateConfig_t *con
 
     axisPID[FD_YAW] =  PTerm + ITerm;
 
+    if (motorCount >= 4) {                                                     // prevent "yaw jump" during yaw correction
+        int16_t limit = ABS(rcCommand[FD_YAW]) + 100;
+        axisPID[FD_YAW] = (float)constrain((int32_t)axisPID[FD_YAW], -limit, +limit);
+    }
+
 #ifdef GTUNE
     if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-        calculate_Gtune(false, FD_YAW, pidProfile);
+        calculate_Gtune(FD_YAW);
     }
 #endif
 
@@ -630,7 +640,7 @@ rollAndPitchTrims_t *angleTrim, rxConfig_t *rxConfig)
 
 #ifdef GTUNE
         if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-            calculate_Gtune(false, axis, pidProfile);
+            calculate_Gtune(axis);
         }
 #endif
 
@@ -675,9 +685,14 @@ rollAndPitchTrims_t *angleTrim, rxConfig_t *rxConfig)
     axisPID[FD_YAW] = PTerm + ITerm;
     axisPID[FD_YAW] = lrintf(axisPID[FD_YAW]);                                 // Round up result.
 
+    if (motorCount >= 4) {                                                     // prevent "yaw jump" during yaw correction
+        int16_t limit = ABS(rcCommand[FD_YAW]) + 100;
+        axisPID[FD_YAW] = (float)constrain((int32_t)axisPID[FD_YAW], -limit, +limit);
+    }
+
 #ifdef GTUNE
     if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-        calculate_Gtune(false, FD_YAW, pidProfile);
+        calculate_Gtune(FD_YAW);
     }
 #endif
 
@@ -797,7 +812,7 @@ static void pidRewrite(pidProfile_t *pidProfile, controlRateConfig_t *controlRat
 
 #ifdef GTUNE
         if (FLIGHT_MODE(GTUNE_MODE) && ARMING_FLAG(ARMED)) {
-             calculate_Gtune(false, axis, pidProfile);
+             calculate_Gtune(axis);
         }
 #endif
 
