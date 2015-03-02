@@ -103,6 +103,7 @@ typedef enum FlightLogEvent {
     FLIGHT_LOG_EVENT_AUTOTUNE_CYCLE_START = 10,
     FLIGHT_LOG_EVENT_AUTOTUNE_CYCLE_RESULT = 11,
     FLIGHT_LOG_EVENT_AUTOTUNE_TARGETS = 12,
+    FLIGHT_LOG_EVENT_GTUNE_RESULT = 20,
     FLIGHT_LOG_EVENT_LOG_END = 255
 } FlightLogEvent;
 
@@ -135,12 +136,19 @@ typedef struct flightLogEvent_autotuneTargets_t {
     uint16_t firstPeakAngle, secondPeakAngle;
 } flightLogEvent_autotuneTargets_t;
 
+typedef struct flightLogEvent_gtuneCycleResult_t {
+    uint8_t gtuneAxis;
+    uint32_t gtuneGyroAVG;
+    uint8_t gtuneNewP;
+} flightLogEvent_gtuneCycleResult_t;
+
 typedef union flightLogEventData_t
 {
     flightLogEvent_syncBeep_t syncBeep;
     flightLogEvent_autotuneCycleStart_t autotuneCycleStart;
     flightLogEvent_autotuneCycleResult_t autotuneCycleResult;
     flightLogEvent_autotuneTargets_t autotuneTargets;
+    flightLogEvent_gtuneCycleResult_t gtuneCycleResult;
 } flightLogEventData_t;
 
 typedef struct flightLogEvent_t

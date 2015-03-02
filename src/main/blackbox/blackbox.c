@@ -1012,6 +1012,11 @@ void blackboxLogEvent(FlightLogEvent event, flightLogEventData_t *data)
             blackboxWriteS16(data->autotuneTargets.firstPeakAngle);
             blackboxWriteS16(data->autotuneTargets.secondPeakAngle);
         break;
+        case FLIGHT_LOG_EVENT_GTUNE_RESULT:
+            blackboxWrite(data->gtuneCycleResult.gtuneAxis);
+            blackboxWrite(data->gtuneCycleResult.gtuneGyroAVG);
+            blackboxWrite(data->gtuneCycleResult.gtuneNewP);
+        break;
         case FLIGHT_LOG_EVENT_LOG_END:
             blackboxPrint("End of log");
             blackboxWrite(0);
