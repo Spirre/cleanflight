@@ -42,6 +42,7 @@
 #define JEDEC_ID_MICRON_M25P16         0x202015
 #define JEDEC_ID_MICRON_N25Q064        0x20BA17
 #define JEDEC_ID_WINBOND_W25Q64        0xEF4017
+#define JEDEC_ID_WINBOND_W25Q128       0xEF4018
 
 #define DISABLE_M25P16       GPIO_SetBits(M25P16_CS_GPIO,   M25P16_CS_PIN)
 #define ENABLE_M25P16        GPIO_ResetBits(M25P16_CS_GPIO, M25P16_CS_PIN)
@@ -157,6 +158,11 @@ static bool m25p16_readIdentification()
         case JEDEC_ID_MICRON_N25Q064:
         case JEDEC_ID_WINBOND_W25Q64:
             geometry.sectors = 128;
+            geometry.pagesPerSector = 256;
+            geometry.pageSize = 256;
+        break;
+        case JEDEC_ID_WINBOND_W25Q128:
+            geometry.sectors = 256;
             geometry.pagesPerSector = 256;
             geometry.pageSize = 256;
         break;
