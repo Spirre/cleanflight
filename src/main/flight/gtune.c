@@ -98,7 +98,7 @@ static bool floatPID;
 
 void updateDelayCycles(void)
 {
-    delay_cycles = ((int32_t)pidProfile->gtune_settle_time * 1000) / cycleTime;
+    delay_cycles = -(((int32_t)pidProfile->gtune_settle_time * 1000) / cycleTime);
 }
 
 void init_Gtune(pidProfile_t *pidProfileToTune)
