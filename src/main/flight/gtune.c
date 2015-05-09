@@ -196,7 +196,7 @@ void calculate_Gtune(uint8_t axis)
 #endif
 
                 if (floatPID) {
-                    pidProfile->P_f[axis] = ((float)newP / 10.0f);              // new P value for float PID
+                    pidProfile->P_f[axis] = (float)newP / 10.0f;                // new P value for float PID
                 } else {
                     pidProfile->P8[axis] = newP;                                // new P value
                 }
