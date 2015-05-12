@@ -27,6 +27,7 @@ auxillary receiver channels and other events such as failsafe detection.
 | 20      | 19     | TELEMETRY  | Enable telemetry via switch                                          |
 | 21      | 20     | AUTOTUNE   | Autotune Pitch/Roll PIDs                                             |
 | 22      | 21     | SONAR      | Altitude hold mode (sonar sensor only)                               |
+| 23      | 22     | GTUNE      | G-Tune - auto tuning of Pitch/Roll/Yaw P values                      |
 
 ## Mode details
 
