@@ -32,11 +32,18 @@
 
 #include "sensors/gyro.h"
 
+#include "flight/pid.h"
+#include "flight/filter_pt1.h"
+
 uint16_t calibratingG = 0;
 int16_t gyroADC[XYZ_AXIS_COUNT];
 int16_t gyroZero[FLIGHT_DYNAMICS_INDEX_COUNT] = { 0, 0, 0 };
 
+static pt1_state_t gyroADC_state[XYZ_AXIS_COUNT];
+
 static gyroConfig_t *gyroConfig;
+
+static pidProfile_t *pidProfile;
 
 gyro_t gyro;                      // gyro access functions
 sensor_align_e gyroAlign = 0;
@@ -120,6 +127,15 @@ void gyroUpdate(void)
 
     // range: +/- 8192; +/- 2000 deg/sec
     gyro.read(gyroADC);
+
+    // Gyro Low Pass
+	if (pidProfile->gyro_cut_hz) {
+		int axis;
+		for (axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
+			gyroADC[axis] = filter_pt1(gyroADC[axis], &gyroADC_state[axis], pidProfile->gyro_cut_hz);
+		}
+	}
+
     alignSensors(gyroADC, gyroADC, gyroAlign);
 
     if (!isGyroCalibrationComplete()) {

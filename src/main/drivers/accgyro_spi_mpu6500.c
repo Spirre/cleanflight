@@ -131,18 +131,22 @@ bool mpu6500SpiGyroDetect(gyro_t *gyro, uint16_t lpf)
     //gyro->scale = (4.0f / 16.4f) * (M_PIf / 180.0f) * 0.000001f;
 
     // default lpf is 42Hz
-    if (lpf >= 188)
-        mpuLowPassFilter = INV_FILTER_188HZ;
-    else if (lpf >= 98)
-        mpuLowPassFilter = INV_FILTER_98HZ;
-    else if (lpf >= 42)
-        mpuLowPassFilter = INV_FILTER_42HZ;
-    else if (lpf >= 20)
-        mpuLowPassFilter = INV_FILTER_20HZ;
-    else if (lpf >= 10)
-        mpuLowPassFilter = INV_FILTER_10HZ;
-    else
-        mpuLowPassFilter = INV_FILTER_5HZ;
+    if (lpf == 256)            // diasable LPF if requested
+		mpuLowPassFilter = INV_FILTER_256HZ_NOLPF2;
+	else if (lpf >= 188)
+		mpuLowPassFilter = INV_FILTER_188HZ;
+	else if (lpf >= 98)
+		mpuLowPassFilter = INV_FILTER_98HZ;
+	else if (lpf >= 42)
+		mpuLowPassFilter = INV_FILTER_42HZ;
+	else if (lpf >= 20)
+		mpuLowPassFilter = INV_FILTER_20HZ;
+	else if (lpf >= 10)
+		mpuLowPassFilter = INV_FILTER_10HZ;
+	else if (lpf > 0)
+		mpuLowPassFilter = INV_FILTER_5HZ;
+	else
+		mpuLowPassFilter = INV_FILTER_256HZ_NOLPF2;
 
     return true;
 }

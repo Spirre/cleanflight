@@ -34,7 +34,14 @@
 
 #include "sensors/acceleration.h"
 
+#include "flight/pid.h"
+#include "flight/filter_pt1.h"
+
 int16_t accADC[XYZ_AXIS_COUNT];
+
+static pt1_state_t accADC_state[XYZ_AXIS_COUNT];
+
+static pidProfile_t *pidProfile;
 
 acc_t acc;                       // acc access functions
 sensor_align_e accAlign = 0;
@@ -172,6 +179,15 @@ void applyAccelerationTrims(flightDynamicsTrims_t *accelerationTrims)
 void updateAccelerationReadings(rollAndPitchTrims_t *rollAndPitchTrims)
 {
     acc.read(accADC);
+
+    // Acc low pass
+	if (pidProfile->acc_cut_hz) {
+		int axis;
+		for (axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
+			accADC[axis] = filter_pt1(accADC[axis], &accADC_state[axis], pidProfile->acc_cut_hz);
+		}
+	}
+
     alignSensors(accADC, accADC, accAlign);
 
     if (!isAccelerationCalibrationComplete()) {

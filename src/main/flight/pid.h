@@ -59,6 +59,10 @@ typedef struct pidProfile_s {
 
     uint8_t pid5_oldyw;                     // [0/1] 0 = multiwii 2.3 yaw, 1 = older yaw
     uint8_t pid5_maincuthz;                 // [1-50Hz] Cuf Off Frequency for D term of main Pid controller
+    uint8_t dterm_cut_hz;                   // (default 17Hz, Range 1-50Hz) Used for PT1 element in PID1, PID2 and PID5
+	uint8_t pterm_cut_hz;                   // Used for fitlering Pterm noise on noisy frames
+	uint8_t gyro_cut_hz;                    // Used for soft gyro filtering
+	uint8_t acc_cut_hz;                     // Used for soft acc fitlering
 
 #ifdef GTUNE
     uint8_t  gtune_lolimP[3];               // [0..200] Lower limit of P during G tune

@@ -451,6 +451,10 @@ const clivalue_t valueTable[] = {
 
     { "pid5_oldyw",                 VAR_UINT8  | PROFILE_VALUE,  &masterConfig.profile[0].pidProfile.pid5_oldyw, 0, 1 },
     { "pid5_maincuthz",             VAR_UINT8  | PROFILE_VALUE,  &masterConfig.profile[0].pidProfile.pid5_maincuthz, 1, 50 },
+	{ "dterm_cut_hz",               VAR_UINT8  | PROFILE_VALUE, &masterConfig.profile[0].pidProfile.dterm_cut_hz, 0, 50 },
+	{ "pterm_cut_hz",               VAR_UINT8  | PROFILE_VALUE, &masterConfig.profile[0].pidProfile.pterm_cut_hz, 0, 200 },
+	{ "gyro_cut_hz",                VAR_UINT8  | PROFILE_VALUE, &masterConfig.profile[0].pidProfile.gyro_cut_hz, 0, 200 },
+	{ "acc_cut_hz",                 VAR_UINT8  | PROFILE_VALUE, &masterConfig.profile[0].pidProfile.acc_cut_hz, 0, 200 },
 
 #ifdef GTUNE
     { "gtune_loP_rll",              VAR_UINT8  | PROFILE_VALUE,  &masterConfig.profile[0].pidProfile.gtune_lolimP[FD_ROLL], 10, 200 },
