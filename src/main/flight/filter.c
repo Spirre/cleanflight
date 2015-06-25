@@ -13,12 +13,12 @@
 #include "common/axis.h"
 
 #include "flight/pid.h"
-#include "flight/filter_pt1.h"
+#include "flight/filter.h"
 
 uint16_t cycleTime;
 
 // PT1 Low Pass filter
-float filter_pt1(float input, pt1_state_t* state, int f_cut) {
+float filterApplyPt1(float input, filterState_t* state, int f_cut) {
    float dT = (float)cycleTime * 0.000001f;
    float RC= 1.0f / ( 2.0f * (float)M_PI * f_cut );
 

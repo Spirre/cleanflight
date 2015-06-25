@@ -373,17 +373,21 @@ bool mpu6050GyroDetect(const mpu6050Config_t *configToUse, gyro_t *gyro, uint16_
     gyro->scale = 1.0f / 16.4f;
 
     if (lpf >= 188)
-        mpuLowPassFilter = INV_FILTER_188HZ;
-    else if (lpf >= 98)
-        mpuLowPassFilter = INV_FILTER_98HZ;
-    else if (lpf >= 42)
-        mpuLowPassFilter = INV_FILTER_42HZ;
-    else if (lpf >= 20)
-        mpuLowPassFilter = INV_FILTER_20HZ;
-    else if (lpf >= 10)
-        mpuLowPassFilter = INV_FILTER_10HZ;
-    else
-        mpuLowPassFilter = INV_FILTER_5HZ;
+		mpuLowPassFilter = INV_FILTER_256HZ_NOLPF2;
+	else if (lpf >= 188)
+		mpuLowPassFilter = INV_FILTER_188HZ;
+	else if (lpf >= 98)
+		mpuLowPassFilter = INV_FILTER_98HZ;
+	else if (lpf >= 42)
+		mpuLowPassFilter = INV_FILTER_42HZ;
+	else if (lpf >= 20)
+		mpuLowPassFilter = INV_FILTER_20HZ;
+	else if (lpf >= 10)
+		mpuLowPassFilter = INV_FILTER_10HZ;
+	else if (lpf > 0)
+		mpuLowPassFilter = INV_FILTER_5HZ;
+	else
+		mpuLowPassFilter = INV_FILTER_256HZ_NOLPF2;
 
     return true;
 }

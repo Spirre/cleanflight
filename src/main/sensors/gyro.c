@@ -32,14 +32,14 @@
 
 #include "sensors/gyro.h"
 
+#include "flight/filter.h"
 #include "flight/pid.h"
-#include "flight/filter_pt1.h"
 
 uint16_t calibratingG = 0;
 int16_t gyroADC[XYZ_AXIS_COUNT];
 int16_t gyroZero[FLIGHT_DYNAMICS_INDEX_COUNT] = { 0, 0, 0 };
 
-static pt1_state_t gyroADC_state[XYZ_AXIS_COUNT];
+static filterState_t gyroADCState[XYZ_AXIS_COUNT];
 
 static gyroConfig_t *gyroConfig;
 
@@ -129,12 +129,12 @@ void gyroUpdate(void)
     gyro.read(gyroADC);
 
     // Gyro Low Pass
-	if (pidProfile->gyro_cut_hz) {
-		int axis;
-		for (axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
-			gyroADC[axis] = filter_pt1(gyroADC[axis], &gyroADC_state[axis], pidProfile->gyro_cut_hz);
-		}
-	}
+    if (pidProfile->gyro_cut_hz) {
+            int axis;
+            for (axis = 0; axis < XYZ_AXIS_COUNT; axis++) {
+        	    gyroADC[axis] = filterApplyPt1(gyroADC[axis], &gyroADCState[axis], pidProfile->gyro_cut_hz);
+            }
+        }
 
     alignSensors(gyroADC, gyroADC, gyroAlign);
 

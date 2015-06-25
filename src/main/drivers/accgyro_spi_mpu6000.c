@@ -276,7 +276,7 @@ bool mpu6000SpiGyroDetect(gyro_t *gyro, uint16_t lpf)
 
     // default lpf is 42Hz
     if (lpf == 256)            // diasable LPF if requested
-		mpuLowPassFilter = BITS_DLPF_CFG_2100HZ_NOLPF;
+		mpuLowPassFilter = BITS_DLPF_CFG_256HZ;
 	else if (lpf >= 188)
 		mpuLowPassFilter = BITS_DLPF_CFG_188HZ;
 	else if (lpf >= 98)
